@@ -100,7 +100,7 @@ or alternative Servlet API mock objects (such as http://www.mockobjects.com[Mock
 TIP: Since Spring Framework 5.0, the mock objects in `org.springframework.mock.web` are
 based on the Servlet 4.0 API.
 
-The Spring MVC Test framework builds on the mock Servlet API objects to provide an
+The Spring MVC com.luban.test.Test framework builds on the mock Servlet API objects to provide an
 integration testing framework for Spring MVC. See <<spring-mvc-test-framework>>.
 
 
@@ -182,7 +182,7 @@ combined with `MockHttpServletRequest`, `MockHttpSession`, and so on from Spring
 <<mock-objects-servlet, Servlet API mocks>>. For thorough integration testing of your
 Spring MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
 configuration for Spring MVC, use the
-<<spring-mvc-test-framework, Spring MVC Test Framework>> instead.
+<<spring-mvc-test-framework, Spring MVC com.luban.test.Test Framework>> instead.
 
 
 
@@ -257,7 +257,7 @@ example, a project with 50 to 100 Hibernate mapping files might take 10 to 20 se
 load the mapping files, and incurring that cost before running every test in every test
 fixture leads to slower overall test runs that reduce developer productivity.
 
-Test classes typically declare either an array of resource locations for XML or Groovy
+com.luban.test.Test classes typically declare either an array of resource locations for XML or Groovy
 configuration metadata -- often in the classpath -- or an array of component classes that
 is used to configure the application. These locations or classes are the same as or
 similar to those specified in `web.xml` or other configuration files for production
@@ -277,7 +277,7 @@ TestContext framework.
 
 
 [[testing-fixture-di]]
-==== Dependency Injection of Test Fixtures
+==== Dependency Injection of com.luban.test.Test Fixtures
 
 When the TestContext framework loads your application context, it can optionally
 configure instances of your test classes by using Dependency Injection. This provides a
@@ -758,7 +758,7 @@ locations of properties files and inlined properties to be added to the set of
 `PropertySources` in the `Environment` for an `ApplicationContext` loaded for an
 integration test.
 
-Test property sources have higher precedence than those loaded from the operating
+com.luban.test.Test property sources have higher precedence than those loaded from the operating
 system's environment or Java system properties as well as property sources added by the
 application declaratively through `@PropertySource` or programmatically. Thus, test
 property sources can be used to selectively override properties defined in system and
@@ -937,7 +937,7 @@ mode set to `AFTER_EACH_TEST_METHOD.`
 .Java
 ----
 	@DirtiesContext(methodMode = BEFORE_METHOD) // <1>
-	@Test
+	@com.luban.test.Test
 	void testProcessWhichRequiresFreshAppCtx() {
 		// some logic that requires a new Spring container
 	}
@@ -948,7 +948,7 @@ mode set to `AFTER_EACH_TEST_METHOD.`
 .Kotlin
 ----
 	@DirtiesContext(methodMode = BEFORE_METHOD) // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWhichRequiresFreshAppCtx() {
 		// some logic that requires a new Spring container
 	}
@@ -962,7 +962,7 @@ mode set to `AFTER_EACH_TEST_METHOD.`
 .Java
 ----
 	@DirtiesContext // <1>
-	@Test
+	@com.luban.test.Test
 	void testProcessWhichDirtiesAppCtx() {
 		// some logic that results in the Spring container being dirtied
 	}
@@ -973,7 +973,7 @@ mode set to `AFTER_EACH_TEST_METHOD.`
 .Kotlin
 ----
 	@DirtiesContext // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWhichDirtiesAppCtx() {
 		// some logic that results in the Spring container being dirtied
 	}
@@ -1004,7 +1004,7 @@ as the following example shows.
 
 	class ExtendedTests extends BaseTests {
 
-		@Test
+		@com.luban.test.Test
 		@DirtiesContext(hierarchyMode = CURRENT_LEVEL) // <1>
 		void test() {
 			// some logic that results in the child context being dirtied
@@ -1025,7 +1025,7 @@ as the following example shows.
 
 	class ExtendedTests : BaseTests() {
 
-		@Test
+		@com.luban.test.Test
 		@DirtiesContext(hierarchyMode = CURRENT_LEVEL) // <1>
 		fun test() {
 			// some logic that results in the child context being dirtied
@@ -1091,7 +1091,7 @@ The following example shows how to use the `@Commit` annotation:
 .Java
 ----
 	@Commit // <1>
-	@Test
+	@com.luban.test.Test
 	void testProcessWithoutRollback() {
 		// ...
 	}
@@ -1102,7 +1102,7 @@ The following example shows how to use the `@Commit` annotation:
 .Kotlin
 ----
 	@Commit // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWithoutRollback() {
 		// ...
 	}
@@ -1131,7 +1131,7 @@ result is committed to the database):
 .Java
 ----
 	@Rollback(false) // <1>
-	@Test
+	@com.luban.test.Test
 	void testProcessWithoutRollback() {
 		// ...
 	}
@@ -1142,7 +1142,7 @@ result is committed to the database):
 .Kotlin
 ----
 	@Rollback(false) // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWithoutRollback() {
 		// ...
 	}
@@ -1222,7 +1222,7 @@ it:
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql({"/test-schema.sql", "/test-user-data.sql"}) // <1>
 	void userTest() {
 		// execute code that relies on the test schema and test data
@@ -1233,7 +1233,7 @@ it:
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql("/test-schema.sql", "/test-user-data.sql") // <1>
 	fun userTest() {
 		// execute code that relies on the test schema and test data
@@ -1253,7 +1253,7 @@ configured with the `@Sql` annotation. The following example shows how to use it
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql(
 		scripts = "/test-user-data.sql",
 		config = @SqlConfig(commentPrefix = "`", separator = "@@") // <1>
@@ -1267,7 +1267,7 @@ configured with the `@Sql` annotation. The following example shows how to use it
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql("/test-user-data.sql", config = SqlConfig(commentPrefix = "`", separator = "@@")) // <1>
 	fun userTest() {
 		// execute code that relies on the test data
@@ -1296,7 +1296,7 @@ The following example shows how to use `@SqlMergeMode` at the class level.
 	@SqlMergeMode(MERGE) // <1>
 	class UserTests {
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/user-test-data-001.sql")
 		void standardUserProfile() {
 			// execute code that relies on test data set 001
@@ -1313,7 +1313,7 @@ The following example shows how to use `@SqlMergeMode` at the class level.
 	@SqlMergeMode(MERGE) // <1>
 	class UserTests {
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/user-test-data-001.sql")
 		fun standardUserProfile() {
 			// execute code that relies on test data set 001
@@ -1331,7 +1331,7 @@ The following example shows how to use `@SqlMergeMode` at the method level.
 	@Sql("/test-schema.sql")
 	class UserTests {
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/user-test-data-001.sql")
 		@SqlMergeMode(MERGE) // <1>
 		void standardUserProfile() {
@@ -1348,7 +1348,7 @@ The following example shows how to use `@SqlMergeMode` at the method level.
 	@Sql("/test-schema.sql")
 	class UserTests {
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/user-test-data-001.sql")
 		@SqlMergeMode(MERGE) // <1>
 		fun standardUserProfile() {
@@ -1371,7 +1371,7 @@ annotation. The following example shows how to declare an SQL group:
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@SqlGroup({ // <1>
 		@Sql(scripts = "/test-schema.sql", config = @SqlConfig(commentPrefix = "`")),
 		@Sql("/test-user-data.sql")
@@ -1385,7 +1385,7 @@ annotation. The following example shows how to declare an SQL group:
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	@SqlGroup( // <1>
 		Sql("/test-schema.sql", config = SqlConfig(commentPrefix = "`")),
 		Sql("/test-user-data.sql"))
@@ -1465,7 +1465,7 @@ The following example shows a test that has an `@IfProfileValue` annotation:
 .Java
 ----
 	@IfProfileValue(name="java.vendor", value="Oracle Corporation") // <1>
-	@Test
+	@com.luban.test.Test
 	public void testProcessWhichRunsOnlyOnOracleJvm() {
 		// some logic that should run only on Java VMs from Oracle Corporation
 	}
@@ -1476,7 +1476,7 @@ The following example shows a test that has an `@IfProfileValue` annotation:
 .Kotlin
 ----
 	@IfProfileValue(name="java.vendor", value="Oracle Corporation") // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWhichRunsOnlyOnOracleJvm() {
 		// some logic that should run only on Java VMs from Oracle Corporation
 	}
@@ -1492,7 +1492,7 @@ Consider the following example:
 .Java
 ----
 	@IfProfileValue(name="test-groups", values={"unit-tests", "integration-tests"}) // <1>
-	@Test
+	@com.luban.test.Test
 	public void testProcessWhichRunsForUnitOrIntegrationTestGroups() {
 		// some logic that should run only for unit and integration test groups
 	}
@@ -1503,7 +1503,7 @@ Consider the following example:
 .Kotlin
 ----
 	@IfProfileValue(name="test-groups", values=["unit-tests", "integration-tests"]) // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessWhichRunsForUnitOrIntegrationTestGroups() {
 		// some logic that should run only for unit and integration test groups
 	}
@@ -1573,9 +1573,9 @@ example shows how to use it:
 <1> Set the time period for the test to one second.
 
 
-Spring's `@Timed` annotation has different semantics than JUnit 4's `@Test(timeout=...)`
+Spring's `@Timed` annotation has different semantics than JUnit 4's `@com.luban.test.Test(timeout=...)`
 support. Specifically, due to the manner in which JUnit 4 handles test execution timeouts
-(that is, by executing the test method in a separate `Thread`), `@Test(timeout=...)`
+(that is, by executing the test method in a separate `Thread`), `@com.luban.test.Test(timeout=...)`
 preemptively fails the test if the test takes too long. Spring's `@Timed`, on the other
 hand, does not preemptively fail the test but rather waits for the test to complete
 before failing.
@@ -1594,7 +1594,7 @@ how to use the `@Repeat` annotation:
 .Java
 ----
 	@Repeat(10) // <1>
-	@Test
+	@com.luban.test.Test
 	public void testProcessRepeatedly() {
 		// ...
 	}
@@ -1605,7 +1605,7 @@ how to use the `@Repeat` annotation:
 .Kotlin
 ----
 	@Repeat(10) // <1>
-	@Test
+	@com.luban.test.Test
 	fun testProcessRepeatedly() {
 		// ...
 	}
@@ -1783,7 +1783,7 @@ NOTE: As of Spring Framework 5.2, `@TestConstructor` is only supported in conjun
 with the `SpringExtension` for use with JUnit Jupiter. Note that the `SpringExtension` is
 often automatically registered for you – for example, when using annotations such as
 `@SpringJUnitConfig` and `@SpringJUnitWebConfig` or various test-related annotations from
-Spring Boot Test.
+Spring Boot com.luban.test.Test.
 
 [[integration-testing-annotations-junit-jupiter-enabledif]]
 ===== `@EnabledIf`
@@ -2089,10 +2089,10 @@ configuration of individual JUnit Jupiter based test classes, as follows:
 	class UserRepositoryTests { }
 ----
 
-Since JUnit Jupiter supports the use of `@Test`, `@RepeatedTest`, `ParameterizedTest`,
+Since JUnit Jupiter supports the use of `@com.luban.test.Test`, `@RepeatedTest`, `ParameterizedTest`,
 and others as meta-annotations, you can also create custom composed annotations at the
 test method level. For example, if we wish to create a composed annotation that combines
-the `@Test` and `@Tag` annotations from JUnit Jupiter with the `@Transactional`
+the `@com.luban.test.Test` and `@Tag` annotations from JUnit Jupiter with the `@Transactional`
 annotation from Spring, we could create an `@TransactionalIntegrationTest` annotation, as
 follows:
 
@@ -2103,7 +2103,7 @@ follows:
 	@Retention(RetentionPolicy.RUNTIME)
 	@Transactional
 	@Tag("integration-test") // org.junit.jupiter.api.Tag
-	@Test // org.junit.jupiter.api.Test
+	@com.luban.test.Test // org.junit.jupiter.api.com.luban.test.Test
 	public @interface TransactionalIntegrationTest { }
 ----
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
@@ -2113,7 +2113,7 @@ follows:
 	@Retention(AnnotationRetention.RUNTIME)
 	@Transactional
 	@Tag("integration-test") // org.junit.jupiter.api.Tag
-	@Test // org.junit.jupiter.api.Test
+	@com.luban.test.Test // org.junit.jupiter.api.com.luban.test.Test
 	annotation class TransactionalIntegrationTest { }
 ----
 
@@ -2200,7 +2200,7 @@ responsible for managing a single `TestContext` and signaling events to each reg
 `TestExecutionListener` at well-defined test execution points:
 
 * Prior to any "`before class`" or "`before all`" methods of a particular testing framework.
-* Test instance post-processing.
+* com.luban.test.Test instance post-processing.
 * Prior to any "`before`" or "`before each`" methods of a particular testing framework.
 * Immediately before execution of the test method but after test setup.
 * Immediately after execution of the test method but before test tear down.
@@ -2438,7 +2438,7 @@ be replaced with the following:
 ----
 
 [[testcontext-test-execution-events]]
-==== Test Execution Events
+==== com.luban.test.Test Execution Events
 
 The `EventPublishingTestExecutionListener` introduced in Spring Framework 5.2 offers an
 alternative approach to implementing a custom `TestExecutionListener`. Components in the
@@ -2505,7 +2505,7 @@ you can use Spring's <<integration.adoc#scheduling-annotation-support-async,regu
 ==== Context Management
 
 Each `TestContext` provides context management and caching support for the test instance
-for which it is responsible. Test instances do not automatically receive access to the
+for which it is responsible. com.luban.test.Test instances do not automatically receive access to the
 configured `ApplicationContext`. However, if a test class implements the
 `ApplicationContextAware` interface, a reference to the `ApplicationContext` is supplied
 to the test instance. Note that `AbstractJUnit4SpringContextTests` and
@@ -2586,7 +2586,7 @@ Dependency injection by using `@Autowired` is provided by the
 (see <<testcontext-fixture-di>>).
 =====
 
-Test classes that use the TestContext framework do not need to extend any particular
+com.luban.test.Test classes that use the TestContext framework do not need to extend any particular
 class or implement a specific interface to configure their application context. Instead,
 configuration is achieved by declaring the `@ContextConfiguration` annotation at the
 class level. If your test class does not explicitly declare application context resource
@@ -2917,7 +2917,7 @@ class:
 		@Autowired
 		OrderService orderService;
 
-		@Test
+		@com.luban.test.Test
 		void testOrderService() {
 			// test the orderService
 		}
@@ -2947,7 +2947,7 @@ class:
 			}
 		}
 
-		@Test
+		@com.luban.test.Test
 		fun testOrderService() {
 			// test the orderService
 		}
@@ -3298,7 +3298,7 @@ Consider two examples with XML configuration and `@Configuration` classes:
 		@Autowired
 		TransferService transferService;
 
-		@Test
+		@com.luban.test.Test
 		void testTransferService() {
 			// test the transferService
 		}
@@ -3316,7 +3316,7 @@ Consider two examples with XML configuration and `@Configuration` classes:
 		@Autowired
 		lateinit var transferService: TransferService
 
-		@Test
+		@com.luban.test.Test
 		fun testTransferService() {
 			// test the transferService
 		}
@@ -3506,7 +3506,7 @@ integration test with `@Configuration` classes instead of XML:
 		@Autowired
 		TransferService transferService;
 
-		@Test
+		@com.luban.test.Test
 		void testTransferService() {
 			// test the transferService
 		}
@@ -3526,7 +3526,7 @@ integration test with `@Configuration` classes instead of XML:
 		@Autowired
 		lateinit var transferService: TransferService
 
-		@Test
+		@com.luban.test.Test
 		fun testTransferService() {
 			// test the transferService
 		}
@@ -3592,7 +3592,7 @@ has been moved to an abstract superclass, `AbstractIntegrationTest`:
 		@Autowired
 		TransferService transferService;
 
-		@Test
+		@com.luban.test.Test
 		void testTransferService() {
 			// test the transferService
 		}
@@ -3607,7 +3607,7 @@ has been moved to an abstract superclass, `AbstractIntegrationTest`:
 		@Autowired
 		lateinit var transferService: TransferService
 
-		@Test
+		@com.luban.test.Test
 		fun testTransferService() {
 			// test the transferService
 		}
@@ -3705,7 +3705,7 @@ The following example demonstrates how to implement and register a custom
 ----
 
 [[testcontext-ctx-management-property-sources]]
-===== Context Configuration with Test Property Sources
+===== Context Configuration with com.luban.test.Test Property Sources
 
 The Spring Framework has first-class support for the notion of an environment with a
 hierarchy of property sources, and you can configure integration tests with test-specific
@@ -3726,7 +3726,7 @@ through the `getPropertySourceLocations()` and `getPropertySourceProperties()` m
 `MergedContextConfiguration`.
 ====
 
-====== Declaring Test Property Sources
+====== Declaring com.luban.test.Test Property Sources
 
 You can configure test properties files by using the `locations` or `value` attribute of
 `@TestPropertySource`.
@@ -3834,7 +3834,7 @@ file is `classpath:com/example/MyTest.properties`. If the default cannot be dete
 
 ====== Precedence
 
-Test property sources have higher precedence than those loaded from the operating
+com.luban.test.Test property sources have higher precedence than those loaded from the operating
 system's environment, Java system properties, or property sources added by the
 application declaratively by using `@PropertySource` or programmatically. Thus, test
 property sources can be used to selectively override properties defined in system and
@@ -3873,7 +3873,7 @@ to specify properties both in a file and inline:
 	}
 ----
 
-====== Inheriting and Overriding Test Property Sources
+====== Inheriting and Overriding com.luban.test.Test Property Sources
 
 `@TestPropertySource` supports boolean `inheritLocations` and `inheritProperties`
 attributes that denote whether resource locations for properties files and inlined
@@ -4219,7 +4219,7 @@ is shared by both test classes. This means that the setup cost for loading an ap
 context is incurred only once (per test suite), and subsequent test execution is much
 faster.
 
-.Test suites and forked processes
+.com.luban.test.Test suites and forked processes
 [NOTE]
 ====
 The Spring TestContext framework stores application contexts in a static cache. This
@@ -4481,7 +4481,7 @@ is cleared. For further details, see the discussion of `@DirtiesContext` in
 --
 
 [[testcontext-fixture-di]]
-==== Dependency Injection of Test Fixtures
+==== Dependency Injection of com.luban.test.Test Fixtures
 
 When you use the `DependencyInjectionTestExecutionListener` (which is configured by
 default), the dependencies of your test instances are injected from beans in the
@@ -4548,7 +4548,7 @@ uses `@Autowired` for field injection:
 		@Autowired
 		HibernateTitleRepository titleRepository;
 
-		@Test
+		@com.luban.test.Test
 		void findById() {
 			Title title = titleRepository.findById(new Long(10));
 			assertNotNull(title);
@@ -4568,7 +4568,7 @@ uses `@Autowired` for field injection:
 		@Autowired
 		lateinit var titleRepository: HibernateTitleRepository
 
-		@Test
+		@com.luban.test.Test
 		fun findById() {
 			val title = titleRepository.findById(10)
 			assertNotNull(title)
@@ -4595,7 +4595,7 @@ follows:
 			this.titleRepository = titleRepository;
 		}
 
-		@Test
+		@com.luban.test.Test
 		void findById() {
 			Title title = titleRepository.findById(new Long(10));
 			assertNotNull(title);
@@ -4619,7 +4619,7 @@ follows:
 			this.titleRepository = titleRepository
 		}
 
-		@Test
+		@com.luban.test.Test
 		fun findById() {
 			val title = titleRepository.findById(10)
 			assertNotNull(title)
@@ -4755,7 +4755,7 @@ inputs for the username and password. The following listing shows how to do so:
 		@Autowired UserService userService;
 		@Autowired MockHttpServletRequest request;
 
-		@Test
+		@com.luban.test.Test
 		void requestScope() {
 			request.setParameter("user", "enigma");
 			request.setParameter("pswd", "$pr!ng");
@@ -4774,7 +4774,7 @@ inputs for the username and password. The following listing shows how to do so:
 		@Autowired lateinit var userService: UserService
 		@Autowired lateinit var request: MockHttpServletRequest
 
-		@Test
+		@com.luban.test.Test
 		fun requestScope() {
 			request.setParameter("user", "enigma")
 			request.setParameter("pswd", "\$pr!ng")
@@ -4828,7 +4828,7 @@ configured theme. The following example shows how to do so:
 		@Autowired UserService userService;
 		@Autowired MockHttpSession session;
 
-		@Test
+		@com.luban.test.Test
 		void sessionScope() throws Exception {
 			session.setAttribute("theme", "blue");
 
@@ -4847,7 +4847,7 @@ configured theme. The following example shows how to do so:
 		@Autowired lateinit var userService: UserService
 		@Autowired lateinit var session: MockHttpSession
 
-		@Test
+		@com.luban.test.Test
 		fun sessionScope() {
 			session.setAttribute("theme", "blue")
 
@@ -4869,9 +4869,9 @@ details are provided later). In addition, you must declare Spring's `@Transactio
 annotation either at the class or the method level for your tests.
 
 [[testcontext-tx-test-managed-transactions]]
-===== Test-managed Transactions
+===== com.luban.test.Test-managed Transactions
 
-Test-managed transactions are transactions that are managed declaratively by using the
+com.luban.test.Test-managed transactions are transactions that are managed declaratively by using the
 `TransactionalTestExecutionListener` or programmatically by using `TestTransaction`
 (described later). You should not confuse such transactions with Spring-managed
 transactions (those managed directly by Spring within the `ApplicationContext` loaded for
@@ -4899,10 +4899,10 @@ though the test-managed transaction is properly rolled back by Spring.
 
 Situations in which this can occur include but are not limited to the following.
 
-* JUnit 4's `@Test(timeout = ...)` support and `TimeOut` rule
+* JUnit 4's `@com.luban.test.Test(timeout = ...)` support and `TimeOut` rule
 * JUnit Jupiter's `assertTimeoutPreemptively(...)` methods in the
   `org.junit.jupiter.api.Assertions` class
-* TestNG's `@Test(timeOut = ...)` support
+* TestNG's `@com.luban.test.Test(timeOut = ...)` support
 ====
 
 [[testcontext-tx-enabling-transactions]]
@@ -4911,7 +4911,7 @@ Situations in which this can occur include but are not limited to the following.
 Annotating a test method with `@Transactional` causes the test to be run within a
 transaction that is, by default, automatically rolled back after completion of the test.
 If a test class is annotated with `@Transactional`, each test method within that class
-hierarchy runs within a transaction. Test methods that are not annotated with
+hierarchy runs within a transaction. com.luban.test.Test methods that are not annotated with
 `@Transactional` (at the class or method level) are not run within a transaction. Note
 that `@Transactional` is not supported on test lifecycle methods — for example, methods
 annotated with JUnit Jupiter's `@BeforeAll`, `@BeforeEach`, etc. Furthermore, tests that
@@ -4981,7 +4981,7 @@ a Hibernate-based `UserRepository`:
 			this.jdbcTemplate = new JdbcTemplate(dataSource);
 		}
 
-		@Test
+		@com.luban.test.Test
 		void createUser() {
 			// track initial state in test database:
 			final int count = countRowsInTable("user");
@@ -5024,7 +5024,7 @@ a Hibernate-based `UserRepository`:
 			this.jdbcTemplate = JdbcTemplate(dataSource)
 		}
 
-		@Test
+		@com.luban.test.Test
 		fun createUser() {
 			// track initial state in test database:
 			val count = countRowsInTable("user")
@@ -5080,7 +5080,7 @@ for further details.
 	public class ProgrammaticTransactionManagementTests extends
 			AbstractTransactionalJUnit4SpringContextTests {
 
-		@Test
+		@com.luban.test.Test
 		public void transactionalTest() {
 			// assert initial state in test database:
 			assertNumUsers(2);
@@ -5109,7 +5109,7 @@ for further details.
 	@ContextConfiguration(classes = [TestConfig::class])
 	class ProgrammaticTransactionManagementTests : AbstractTransactionalJUnit4SpringContextTests() {
 
-		@Test
+		@com.luban.test.Test
 		fun transactionalTest() {
 			// assert initial state in test database:
 			assertNumUsers(2)
@@ -5195,7 +5195,7 @@ following example shows the relevant annotations:
 			// set up test data within the transaction
 		}
 
-		@Test
+		@com.luban.test.Test
 		// overrides the class-level @Commit setting
 		@Rollback
 		void modifyDatabaseWithinTransaction() {
@@ -5233,7 +5233,7 @@ following example shows the relevant annotations:
 			// set up test data within the transaction
 		}
 
-		@Test
+		@com.luban.test.Test
 		// overrides the class-level @Commit setting
 		@Rollback
 		fun modifyDatabaseWithinTransaction() {
@@ -5276,7 +5276,7 @@ session:
 	SessionFactory sessionFactory;
 
 	@Transactional
-	@Test // no expected exception!
+	@com.luban.test.Test // no expected exception!
 	public void falsePositive() {
 		updateEntityInHibernateSession();
 		// False positive: an exception will be thrown once the Hibernate
@@ -5284,7 +5284,7 @@ session:
 	}
 
 	@Transactional
-	@Test(expected = ...)
+	@com.luban.test.Test(expected = ...)
 	public void updateWithSessionFlush() {
 		updateEntityInHibernateSession();
 		// Manual flush is required to avoid false positive in test
@@ -5303,7 +5303,7 @@ session:
 	lateinit var sessionFactory: SessionFactory
 
 	@Transactional
-	@Test // no expected exception!
+	@com.luban.test.Test // no expected exception!
 	fun falsePositive() {
 		updateEntityInHibernateSession()
 		// False positive: an exception will be thrown once the Hibernate
@@ -5311,7 +5311,7 @@ session:
 	}
 
 	@Transactional
-	@Test(expected = ...)
+	@com.luban.test.Test(expected = ...)
 	fun updateWithSessionFlush() {
 		updateEntityInHibernateSession()
 		// Manual flush is required to avoid false positive in test
@@ -5332,7 +5332,7 @@ The following example shows matching methods for JPA:
 	EntityManager entityManager;
 
 	@Transactional
-	@Test // no expected exception!
+	@com.luban.test.Test // no expected exception!
 	public void falsePositive() {
 		updateEntityInJpaPersistenceContext();
 		// False positive: an exception will be thrown once the JPA
@@ -5340,7 +5340,7 @@ The following example shows matching methods for JPA:
 	}
 
 	@Transactional
-	@Test(expected = ...)
+	@com.luban.test.Test(expected = ...)
 	public void updateWithEntityManagerFlush() {
 		updateEntityInJpaPersistenceContext();
 		// Manual flush is required to avoid false positive in test
@@ -5358,7 +5358,7 @@ The following example shows matching methods for JPA:
 	lateinit var entityManager:EntityManager
 
 	@Transactional
-	@Test // no expected exception!
+	@com.luban.test.Test // no expected exception!
 	fun falsePositive() {
 		updateEntityInJpaPersistenceContext()
 		// False positive: an exception will be thrown once the JPA
@@ -5366,7 +5366,7 @@ The following example shows matching methods for JPA:
 	}
 
 	@Transactional
-	@Test(expected = ...)
+	@com.luban.test.Test(expected = ...)
 	void updateWithEntityManagerFlush() {
 		updateEntityInJpaPersistenceContext()
 		// Manual flush is required to avoid false positive in test
@@ -5429,7 +5429,7 @@ specifies SQL scripts for a test schema and test data, sets the statement separa
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	void databaseTest() {
 		ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
 		populator.addScripts(
@@ -5443,7 +5443,7 @@ specifies SQL scripts for a test schema and test data, sets the statement separa
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	fun databaseTest() {
 		val populator = ResourceDatabasePopulator()
 		populator.addScripts(
@@ -5497,12 +5497,12 @@ within a JUnit Jupiter based integration test class:
 	@Sql("/test-schema.sql")
 	class DatabaseTests {
 
-		@Test
+		@com.luban.test.Test
 		void emptySchemaTest() {
 			// execute code that uses the test schema without any test data
 		}
 
-		@Test
+		@com.luban.test.Test
 		@Sql({"/test-schema.sql", "/test-user-data.sql"})
 		void userTest() {
 			// execute code that uses the test schema and test data
@@ -5517,12 +5517,12 @@ within a JUnit Jupiter based integration test class:
 	@Sql("/test-schema.sql")
 	class DatabaseTests {
 
-		@Test
+		@com.luban.test.Test
 		fun emptySchemaTest() {
 			// execute code that uses the test schema without any test data
 		}
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/test-schema.sql", "/test-user-data.sql")
 		fun userTest() {
 			// execute code that uses the test schema and test data
@@ -5558,7 +5558,7 @@ The following example shows how to use `@Sql` as a repeatable annotation with Ja
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql(scripts = "/test-schema.sql", config = @SqlConfig(commentPrefix = "`"))
 	@Sql("/test-user-data.sql")
 	void userTest() {
@@ -5582,7 +5582,7 @@ other JVM languages such as Kotlin.
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@SqlGroup({
 		@Sql(scripts = "/test-schema.sql", config = @SqlConfig(commentPrefix = "`")),
 		@Sql("/test-user-data.sql")
@@ -5594,7 +5594,7 @@ other JVM languages such as Kotlin.
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	@SqlGroup(
 		Sql("/test-schema.sql", config = SqlConfig(commentPrefix = "`")),
 		Sql("/test-user-data.sql"))
@@ -5614,7 +5614,7 @@ following example shows:
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	@Sql(
 		scripts = "create-test-data.sql",
 		config = @SqlConfig(transactionMode = ISOLATED)
@@ -5632,7 +5632,7 @@ following example shows:
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	@SqlGroup(
 		Sql("create-test-data.sql",
 			config = SqlConfig(transactionMode = ISOLATED)),
@@ -5713,7 +5713,7 @@ that uses JUnit Jupiter and transactional tests with `@Sql`:
 			this.jdbcTemplate = new JdbcTemplate(dataSource);
 		}
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/test-data.sql")
 		void usersTest() {
 			// verify state in test database:
@@ -5740,7 +5740,7 @@ that uses JUnit Jupiter and transactional tests with `@Sql`:
 
 		val jdbcTemplate: JdbcTemplate = JdbcTemplate(dataSource)
 
-		@Test
+		@com.luban.test.Test
 		@Sql("/test-data.sql")
 		fun usersTest() {
 			// verify state in test database:
@@ -5779,7 +5779,7 @@ via `@SqlMergeMode(OVERRIDE)`. Consult the <<spring-testing-annotation-sqlmergem
 
 
 [[testcontext-parallel-test-execution]]
-==== Parallel Test Execution
+==== Parallel com.luban.test.Test Execution
 
 Spring Framework 5.0 introduced basic support for executing tests in parallel within a
 single JVM when using the Spring TestContext Framework. In general, this means that most
@@ -5855,7 +5855,7 @@ run with the custom Spring `Runner`:
 	@TestExecutionListeners({})
 	public class SimpleTest {
 
-		@Test
+		@com.luban.test.Test
 		public void testMethod() {
 			// execute test logic...
 		}
@@ -5869,7 +5869,7 @@ run with the custom Spring `Runner`:
 	@TestExecutionListeners
 	class SimpleTest {
 
-		@Test
+		@com.luban.test.Test
 		fun testMethod() {
 			// execute test logic...
 		}
@@ -5915,7 +5915,7 @@ to declare these rules in an integration test:
 		@Rule
 		public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
-		@Test
+		@com.luban.test.Test
 		public void testMethod() {
 			// execute test logic...
 		}
@@ -5932,7 +5932,7 @@ to declare these rules in an integration test:
 		@Rule
 		val springMethodRule = SpringMethodRule()
 
-		@Test
+		@com.luban.test.Test
 		fun testMethod() {
 			// execute test logic...
 		}
@@ -6016,7 +6016,7 @@ The following code listing shows how to configure a test class to use the
 	@ContextConfiguration(classes = TestConfig.class)
 	class SimpleTests {
 
-		@Test
+		@com.luban.test.Test
 		void testMethod() {
 			// execute test logic...
 		}
@@ -6032,7 +6032,7 @@ The following code listing shows how to configure a test class to use the
 	@ContextConfiguration(classes = [TestConfig::class])
 	class SimpleTests {
 
-		@Test
+		@com.luban.test.Test
 		fun testMethod() {
 			// execute test logic...
 		}
@@ -6054,7 +6054,7 @@ used in the previous example:
 	@SpringJUnitConfig(TestConfig.class)
 	class SimpleTests {
 
-		@Test
+		@com.luban.test.Test
 		void testMethod() {
 			// execute test logic...
 		}
@@ -6069,7 +6069,7 @@ used in the previous example:
 	@SpringJUnitConfig(TestConfig::class)
 	class SimpleTests {
 
-		@Test
+		@com.luban.test.Test
 		fun testMethod() {
 			// execute test logic...
 		}
@@ -6087,7 +6087,7 @@ Similarly, the following example uses `@SpringJUnitWebConfig` to create a
 	@SpringJUnitWebConfig(TestWebConfig.class)
 	class SimpleWebTests {
 
-		@Test
+		@com.luban.test.Test
 		void testMethod() {
 			// execute test logic...
 		}
@@ -6102,7 +6102,7 @@ Similarly, the following example uses `@SpringJUnitWebConfig` to create a
 	@SpringJUnitWebConfig(TestWebConfig::class)
 	class SimpleWebTests {
 
-		@Test
+		@com.luban.test.Test
 		fun testMethod() {
 			// execute test logic...
 		}
@@ -6122,7 +6122,7 @@ constructors, test methods, and test lifecycle callback methods.
 
 Specifically, `SpringExtension` can inject dependencies from the test's
 `ApplicationContext` into test constructors and methods that are annotated with
-`@BeforeAll`, `@AfterAll`, `@BeforeEach`, `@AfterEach`, `@Test`, `@RepeatedTest`,
+`@BeforeAll`, `@AfterAll`, `@BeforeEach`, `@AfterEach`, `@com.luban.test.Test`, `@RepeatedTest`,
 `@ParameterizedTest`, and others.
 
 [[testcontext-junit-jupiter-di-constructor]]
@@ -6248,7 +6248,7 @@ loaded from `TestConfig.class` into the `deleteOrder()` test method:
 	@SpringJUnitConfig(TestConfig.class)
 	class OrderServiceIntegrationTests {
 
-		@Test
+		@com.luban.test.Test
 		void deleteOrder(@Autowired OrderService orderService) {
 			// use orderService from the test's ApplicationContext
 		}
@@ -6261,7 +6261,7 @@ loaded from `TestConfig.class` into the `deleteOrder()` test method:
 	@SpringJUnitConfig(TestConfig::class)
 	class OrderServiceIntegrationTests {
 
-		@Test
+		@com.luban.test.Test
 		fun deleteOrder(@Autowired orderService: OrderService) {
 			// use orderService from the test's ApplicationContext
 		}
@@ -6349,9 +6349,9 @@ of `AbstractTestNGSpringContextTests` for an example of how to instrument your t
 
 
 [[spring-mvc-test-framework]]
-=== Spring MVC Test Framework
+=== Spring MVC com.luban.test.Test Framework
 
-The Spring MVC Test framework provides first class support for testing Spring MVC code
+The Spring MVC com.luban.test.Test framework provides first class support for testing Spring MVC code
 with a fluent API that you can use with JUnit, TestNG, or any other testing framework. It
 is built on the {api-spring-framework}/mock/web/package-summary.html[Servlet API mock objects]
 from the `spring-test` module and, hence, does not use a running Servlet container. It
@@ -6360,7 +6360,7 @@ support for loading actual Spring configuration with the TestContext framework i
 addition to a standalone mode, in which you can manually instantiate controllers and test
 them one at a time.
 
-Spring MVC Test also provides client-side support for testing code that uses the
+Spring MVC com.luban.test.Test also provides client-side support for testing code that uses the
 `RestTemplate`. Client-side tests mock the server responses and also do not use a running
 server.
 
@@ -6382,15 +6382,15 @@ example, request mappings, data binding, type conversion, validation, and much m
 Furthermore, other controller methods such as `@InitBinder`, `@ModelAttribute`, and
 `@ExceptionHandler` may also be invoked as part of the request processing lifecycle.
 
-The goal of Spring MVC Test is to provide an effective way to test controllers by
+The goal of Spring MVC com.luban.test.Test is to provide an effective way to test controllers by
 performing requests and generating responses through the actual `DispatcherServlet`.
 
-Spring MVC Test builds on the familiar <<mock-objects-servlet, "`mock`" implementations of
+Spring MVC com.luban.test.Test builds on the familiar <<mock-objects-servlet, "`mock`" implementations of
 the Servlet API>> available in the `spring-test` module. This allows performing requests
 and generating responses without the need for running in a Servlet container. For the
 most part, everything should work as it does at runtime with a few notable exceptions, as
 explained in <<spring-mvc-test-vs-end-to-end-integration-tests>>. The following JUnit
-Jupiter-based example uses Spring MVC Test:
+Jupiter-based example uses Spring MVC com.luban.test.Test:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
@@ -6408,7 +6408,7 @@ Jupiter-based example uses Spring MVC Test:
 			this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 		}
 
-		@Test
+		@com.luban.test.Test
 		void getAccount() throws Exception {
 			this.mockMvc.perform(get("/accounts/1")
 					.accept(MediaType.APPLICATION_JSON))
@@ -6433,7 +6433,7 @@ Jupiter-based example uses Spring MVC Test:
 			this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build()
 		}
 
-		@Test
+		@com.luban.test.Test
 		fun getAccount() {
 			mockMvc.get("/accounts/1") {
 				accept = MediaType.APPLICATION_JSON
@@ -7002,7 +7002,7 @@ Servlet 3.0 asynchronous requests,
 thread and allowing the application to compute the response asynchronously, after which
 an async dispatch is made to complete processing on a Servlet container thread.
 
-In Spring MVC Test, async requests can be tested by asserting the produced async value
+In Spring MVC com.luban.test.Test, async requests can be tested by asserting the produced async value
 first, then manually performing the async dispatch, and finally verifying the response.
 Below is an example test for controller methods that return `DeferredResult`, `Callable`,
 or reactive type such as Reactor `Mono`:
@@ -7010,7 +7010,7 @@ or reactive type such as Reactor `Mono`:
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
 ----
-	@Test
+	@com.luban.test.Test
 	void test() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get("/path"))
                 .andExpect(status().isOk()) <1>
@@ -7032,7 +7032,7 @@ or reactive type such as Reactor `Mono`:
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	fun test() {
 		var mvcResult = mockMvc.get("/path").andExpect {
 			status().isOk() // <1>
@@ -7059,7 +7059,7 @@ or reactive type such as Reactor `Mono`:
 [[spring-mvc-test-vs-streaming-response]]
 ===== Streaming Responses
 
-There are no options built into Spring MVC Test for container-less testing of streaming
+There are no options built into Spring MVC com.luban.test.Test for container-less testing of streaming
 responses. Applications that make use of
 <<web.adoc#mvc-ann-async-http-streaming,Spring MVC streaming>> options can use the
 <<testing.adoc#webtestclient-stream,WebTestClient>> to perform end-to-end, integration
@@ -7091,9 +7091,9 @@ last filter delegates to the `DispatcherServlet`.
 
 
 [[spring-mvc-test-vs-end-to-end-integration-tests]]
-===== Spring MVC Test vs End-to-End Tests
+===== Spring MVC com.luban.test.Test vs End-to-End Tests
 
-Spring MVC Test is built on Servlet API mock implementations from the
+Spring MVC com.luban.test.Test is built on Servlet API mock implementations from the
 `spring-test` module and does not rely on a running container. Therefore, there are
 some differences when compared to full end-to-end integration tests with an actual
 client and a live server running.
@@ -7115,9 +7115,9 @@ Alternatively, you may consider the full end-to-end integration testing support 
 Spring Boot with `@SpringBootTest`. See the
 {doc-spring-boot}/html/spring-boot-features.html#boot-features-testing[Spring Boot Reference Guide].
 
-There are pros and cons for each approach. The options provided in Spring MVC Test are
+There are pros and cons for each approach. The options provided in Spring MVC com.luban.test.Test are
 different stops on the scale from classic unit testing to full integration testing. To be
-certain, none of the options in Spring MVC Test fall under the category of classic unit
+certain, none of the options in Spring MVC com.luban.test.Test fall under the category of classic unit
 testing, but they are a little closer to it. For example, you can isolate the web layer
 by injecting mocked services into controllers, in which case you are testing the web
 layer only through the `DispatcherServlet` but with actual Spring configuration, as you
@@ -7125,7 +7125,7 @@ might test the data access layer in isolation from the layers above it. Also, yo
 the stand-alone setup, focusing on one controller at a time and manually providing the
 configuration required to make it work.
 
-Another important distinction when using Spring MVC Test is that, conceptually, such
+Another important distinction when using Spring MVC com.luban.test.Test is that, conceptually, such
 tests are the server-side, so you can check what handler was used, if an exception was
 handled with a HandlerExceptionResolver, what the content of the model is, what binding
 errors there were, and other details. That means that it is easier to write expectations,
@@ -7141,10 +7141,10 @@ of testing even within the same project.
 
 The framework's own tests include
 https://github.com/spring-projects/spring-framework/tree/master/spring-test/src/test/java/org/springframework/test/web/servlet/samples[many
-sample tests] intended to show how to use Spring MVC Test. You can browse these examples
+sample tests] intended to show how to use Spring MVC com.luban.test.Test. You can browse these examples
 for further ideas. Also, the
 https://github.com/spring-projects/spring-mvc-showcase[`spring-mvc-showcase`] project has
-full test coverage based on Spring MVC Test.
+full test coverage based on Spring MVC com.luban.test.Test.
 
 
 [[spring-mvc-test-server-htmlunit]]
@@ -7159,7 +7159,7 @@ when using HTML-based views. This integration lets you:
   https://www.seleniumhq.org[WebDriver], and
   http://www.gebish.org/manual/current/#spock-junit-testng[Geb] without the need to
   deploy to a Servlet container.
-* Test JavaScript within pages.
+* com.luban.test.Test JavaScript within pages.
 * Optionally, test using mock services to speed up testing.
 * Share logic between in-container end-to-end tests and out-of-container integration tests.
 
@@ -7175,7 +7175,7 @@ best found by exploring a very basic sample application. Assume you have a Sprin
 application that supports CRUD operations on a `Message` object. The application also
 supports paging through all messages. How would you go about testing it?
 
-With Spring MVC Test, we can easily test if we are able to create a `Message`, as follows:
+With Spring MVC com.luban.test.Test, we can easily test if we are able to create a `Message`, as follows:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
@@ -7191,7 +7191,7 @@ With Spring MVC Test, we can easily test if we are able to create a `Message`, a
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
 ----
-	@Test
+	@com.luban.test.Test
 	fun test() {
 		mockMvc.post("/messages/") {
 			param("summary", "Spring Rocks")
@@ -7746,7 +7746,7 @@ following sections to make this pattern much easier to implement.
 [[spring-mvc-test-server-htmlunit-webdriver-setup]]
 ====== MockMvc and WebDriver Setup
 
-To use Selenium WebDriver with the Spring MVC Test framework, make sure that your project
+To use Selenium WebDriver with the Spring MVC com.luban.test.Test framework, make sure that your project
 includes a test dependency on `org.seleniumhq.selenium:selenium-htmlunit-driver`.
 
 We can easily create a Selenium WebDriver that integrates with MockMvc by using the
@@ -8234,7 +8234,7 @@ example shows how to do so:
 	MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
 	mockServer.expect(requestTo("/greeting")).andRespond(withSuccess());
 
-	// Test code that uses the above RestTemplate ...
+	// com.luban.test.Test code that uses the above RestTemplate ...
 
 	mockServer.verify();
 ----
@@ -8246,7 +8246,7 @@ example shows how to do so:
 	val mockServer = MockRestServiceServer.bindTo(restTemplate).build()
 	mockServer.expect(requestTo("/greeting")).andRespond(withSuccess())
 
-	// Test code that uses the above RestTemplate ...
+	// com.luban.test.Test code that uses the above RestTemplate ...
 
 	mockServer.verify()
 ----
@@ -8326,7 +8326,7 @@ logic but without running a server. The following example shows how to do so:
 	MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 	this.restTemplate = new RestTemplate(new MockMvcClientHttpRequestFactory(mockMvc));
 
-	// Test code that uses the above RestTemplate ...
+	// com.luban.test.Test code that uses the above RestTemplate ...
 ----
 [source,kotlin,indent=0,subs="verbatim,quotes",role="secondary"]
 .Kotlin
@@ -8334,7 +8334,7 @@ logic but without running a server. The following example shows how to do so:
 	val mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build()
 	restTemplate = RestTemplate(MockMvcClientHttpRequestFactory(mockMvc))
 
-	// Test code that uses the above RestTemplate ...
+	// com.luban.test.Test code that uses the above RestTemplate ...
 ----
 
 [[spring-mvc-test-client-static-imports]]
@@ -8351,7 +8351,7 @@ configuration. Check for the support for code completion on static members.
 [[spring-mvc-test-client-resources]]
 ===== Further Examples of Client-side REST Tests
 
-Spring MVC Test's own tests include
+Spring MVC com.luban.test.Test's own tests include
 https://github.com/spring-projects/spring-framework/tree/master/spring-test/src/test/java/org/springframework/test/web/client/samples[example
 tests] of client-side REST tests.
 
@@ -8375,7 +8375,7 @@ See the following resources for more information about testing:
 * http://www.mockobjects.com/[MockObjects.com]: Web site dedicated to mock objects, a
   technique for improving the design of code within test-driven development.
 * https://mockito.github.io[Mockito]: Java mock library based on the
-  http://xunitpatterns.com/Test%20Spy.html[Test Spy] pattern. Used by the Spring Framework
+  http://xunitpatterns.com/com.luban.test.Test%20Spy.html[com.luban.test.Test Spy] pattern. Used by the Spring Framework
   in its test suite.
 * https://easymock.org/[EasyMock]: Java library "`that provides Mock Objects for
   interfaces (and objects through the class extension) by generating them on the fly using

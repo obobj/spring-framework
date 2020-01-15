@@ -102,11 +102,13 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * <p>Can be called repeatedly. Effect will vary if we've added
 	 * or removed interfaces. Can add and remove interceptors.
 	 * <p>Uses the given class loader (if necessary for proxy creation).
+	 *
 	 * @param classLoader the class loader to create the proxy with
-	 * (or {@code null} for the low-level proxy facility's default)
+	 *                    (or {@code null} for the low-level proxy facility's default)
 	 * @return the proxy object
 	 */
 	public Object getProxy(@Nullable ClassLoader classLoader) {
+		// 就是看这里返回的实现到底是哪个实现，如果你返回jdk和cglib是实现是不同的
 		return createAopProxy().getProxy(classLoader);
 	}
 
