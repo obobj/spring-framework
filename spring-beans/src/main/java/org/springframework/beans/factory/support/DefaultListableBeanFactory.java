@@ -809,7 +809,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			logger.trace("Pre-instantiating singletons in " + this);
 		}
 
-		// 得到bd中所有的bd
+		// 得到bd中所有的bd的Name
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
@@ -818,7 +818,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (String beanName : beanNames) {
 			// TODO 合并父类的bd
 			// xml 中<bean id = "" parent= "index">
-			// @ImportResource(xml)
+			// @ImportResource(xml)导入
 			// 有父类就合并，没有就拿出来
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			// 主要是判断是不是懒加载
@@ -835,6 +835,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 											((SmartFactoryBean<?>) factory)::isEagerInit,
 									getAccessControlContext());
 						}
+						//
 						else {
 							isEagerInit = (factory instanceof SmartFactoryBean &&
 									((SmartFactoryBean<?>) factory).isEagerInit());
@@ -850,6 +851,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
+		// TODO 这里还没有看呢
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);

@@ -218,6 +218,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			// TODO
 			// 如果sharedInstance != null直接拿出来了
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
@@ -285,6 +286,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					// TODO 这里lambda没有看懂
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							return createBean(beanName, mbd, args);

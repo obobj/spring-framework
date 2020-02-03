@@ -45,4 +45,6 @@ rootProject.children.each {project ->
 	project.buildFileName = "${project.name}.gradle"
 }
 include 'learn'
+include 'event'
+include 'luban-mvc'
 

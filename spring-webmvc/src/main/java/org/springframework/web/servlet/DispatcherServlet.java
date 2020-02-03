@@ -16,30 +16,8 @@
 
 package org.springframework.web.servlet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -64,6 +42,15 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.util.NestedServletException;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers, e.g. for web UI controllers
@@ -496,19 +483,32 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 就是这里就是初始化
 	 * Initialize the strategy objects that this servlet uses.
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// 上传文件的bean
 		initMultipartResolver(context);
+		// 国际化
 		initLocaleResolver(context);
+		// 前端的主题样式
 		initThemeResolver(context);
-		// 根据请求类型，返回handler，3种mapper
+		// 根据请求类型，返回handler，3种mapping
+		// 1. 静态资源
+		// 2. method httpRequest
+		// 3. beanName
+		// 这里也会初始化handlerMapping
 		initHandlerMappings(context);
 		initHandlerAdapters(context);
+		// 这里好像是自己提供一个
+		// spring本来是不支持jsp的，所以需要自己添加一个HandlerMapping
+		// 一般都是添加spring内置的，但是在springboot中自己实现了一个HandlerMapping
 		initHandlerExceptionResolvers(context);
 		initRequestToViewNameTranslator(context);
+		// 视图转换器
 		initViewResolvers(context);
+		// 数据管理器
 		initFlashMapManager(context);
 	}
 
@@ -595,6 +595,8 @@ public class DispatcherServlet extends FrameworkServlet {
 		this.handlerMappings = null;
 
 		if (this.detectAllHandlerMappings) {
+			// 从spring环境中拿出来所有的HandlerMapping
+			// 这里一般都是为null的
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
@@ -614,6 +616,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 通过配置文件中的信息，得到信息
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
 		if (this.handlerMappings == null) {
@@ -860,6 +863,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	@SuppressWarnings("unchecked")
 	protected <T> List<T> getDefaultStrategies(ApplicationContext context, Class<T> strategyInterface) {
 		String key = strategyInterface.getName();
+		// 这里有8个
 		String value = defaultStrategies.getProperty(key);
 		if (value != null) {
 			String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
@@ -1010,9 +1014,24 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// 检查请求中是否有文件上传
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
+				// 确定当前请求的处理程序
+				// 先通过BeanNameUrlHandlerMapping去找
+				// 找不到再通过RequestMappingHandlerMapping
+				// 推断controller的类型
+				// spring一开始就会扫描所有的实现了Controller接口的类，放到一个map中
+				// 其实扫描方法又放到另一个map中
+				// HandlerExecutionChain只能通过HandlerMapping来确定
+				// 实际有5种，一般常见的有三种
+				// 1. RequestMappingHandlerMapping
+				// 2. BeanNameUrlHandlerMapping
+				// 3. SimpleUrlHandlerMapping
+				// 下面就将会处理以及查找各种mapping
+				// 大概可能用的正则表达式去匹配
+				// 最常见的就是返回一个Controller
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
@@ -1020,6 +1039,15 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				// 适配器设计模式
+				// 如果是一个bean的话，getHandler返回的是一个对象
+				// 如果是一个方法，getHandler返回的是一个method
+				// 不同controller交给不同的适配器处理
+				// 到了这里之后，spring才知道如果反射处理
+				// 主要出现的是4种，最常见的是3种
+				// 1. RequestMappingHandlerAdapter
+				// 2. HttpRequestHandlerAdapter
+				// 3. SimpleControllerHandlerAdapter
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
@@ -1231,7 +1259,14 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
+			// 循环所有的HandlerMapping
+			// Controller有三种形式
+			// HandlerMapping是用来确定Handler类型
+			// 1. 方法
+			// 2. bean
 			for (HandlerMapping mapping : this.handlerMappings) {
+				// 第一遍 beanName拿
+				//
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;

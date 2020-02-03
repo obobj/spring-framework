@@ -590,6 +590,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// 这个是实例化剩下的单例
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
@@ -932,6 +933,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
 
+		// TODO
 		// aspect静态织入的过程
 		// spring的aop不管是jdk还是cglib都是动态织入
 		// 一个是编译的时候，一个是运行的时候改变
@@ -947,7 +949,82 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// 实例化单例之前需要做的事情或者是准备
+		// 1 合并getMergedLocalBeanDefinition，主要是针对父类
+		// 2 主要查看是不是isFactoryBean，是FactoryBean就采用FactoryBean的Object方法，但其只是标记一个采用了的，最后还是getBean
+		// 3 getSingleton(beanName)，主要是重载不同，但是第一次调用为什么要拿一次，这是肯定没有的，
+		// 关键就是在于synchronized (this.singletonObjects)，这里如果别人再次拿直接同步等待-------
+		// 4 一般情况都是没有的，接下来先检查getParentBeanFactory，如果改造过的，就直接调用父类的ParentBeanFactory来得到Bean
+		// 5 先处理dependsOn，递归处理dependsOn
+		// 6 然后分开原型、单例分别处理
+		// 7 这里先看单例，lambda表达式getSingleton(String beanName, ObjectFactory<?> singletonFactory)
+		// 8 先从singletonObjects中拿，拿到就直接返回，没拿到beforeSingletonCreation(beanName);才开始认为要开始创建了，
+		// 因为创建之前做了很多的检查
+		// 9 这里开始就是神奇的地方了，singletonObject = singletonFactory.getObject()这个由于lambda表达式，
+		// 在这里转到了createBean(beanName, mbd, args)
+		// 10 开始先解决overrideMethod就是lookup-method和replace-method
+		// 11 接下来先判断实现InstantiationAwareBeanPostProcessor后置处理器没，因为这个后置处理器的对应方法可以返回一个bean，
+		// 就是你自己返回，这样spring就不用帮你new了，具体就是一个before和after，名字就是根据后置处理器名倒置的
+		// 12 然后doCreateBean终于开始实例化了
+		// 13 createBeanInstance(beanName, mbd, args)创建实例，这里的实例化推断非常麻烦，采用分支，这里就是实例化一个普通的类
+		// 没有加上代理的类呢
+		// 13.1 首先看有没有工厂方法getFactoryMethodName，注意了这里这个工厂方法FactoryMethod比较重要，一般都是xml指定的
+		// 这里的工厂方法有点像@Bean但是不完全是
+		// ------------------
+		// 很重要回看org.springframework.beans.factory.support.RootBeanDefinition.setUniqueFactoryMethodName--------------
+		// 13.2 然后就是spring缓存了一个构造方法，因为可能会出现原型，如果缓存了，原型的话就直接拿缓存的就行了
+		// 13.3 采用determineConstructorsFromBeanPostProcessors方法通过后置处理器推断出可能的构造方法，
+		// 这里就比较简单了就是遍历所有实现了SmartInstantiationAwareBeanPostProcessor的determineCandidateConstructors方法的类
+		// 然后看看是不是返回了构造方法的，当然了如果没有为null，那么肯定就是spring自己推断了，就是就是getPreferredConstructors，
+		// 但是基本不可能，不可能没有，spring自己的后置处理器早就处理器了，但是也有可能，就是spring自己推不出来的时候
+		// 可以通过org.springframework.beans.factory.config.ConstructorArgumentValues.addGenericArgumentValue(java.lang.Object)
+		// 来给予构造方法的参数
+		// 13.3.1 这个就是看spring内置的后置处理器怎么推断了，首先后置处理器AutowiredAnnotationBeanPostProcessor才处理这些
+		// 13.3.1.1 先解决lookup-------这里需要补充
+		// 13.3.1.2 candidateConstructorsCache从缓存中拿，第一次肯定没有，然后同步，有点像双重锁检查
+		// 13.3.2 这里非常重要，为什么呢，就是mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR
+		// 这个AutowireMode就是非常隐蔽的特点了，这是非常需要关注的了，它的默认是AUTOWIRE_NO，注意了，不是ByType和ByName
+		// 所以这个分支不会进入
+		// 13.3.3 这里看看getPreferredConstructors的逻辑，没有，对就是没有，就是直接返回null，
+		// 那就是进入了无参构造方法instantiateBean，这个就比较简单了，直接getInstantiationStrategy()，
+		// 然后得到一个实例化策略，然后直接实例化，实例化就是简单的jdk反射
+		// 13.3.4 这个就开始了有参构造方法了autowireConstructor，这里又是一个缓存resolvedConstructorOrFactoryMethod，
+		// 存储之前解析过的bean的实例化构造方法，里面有所有实例化过的
+		// 13.3.5 直接通过beanClass.getDeclaredConstructors()得到所有的构造方法
+		// 13.3.6 遍历找到的所有构造方法，复合条件的放入candidates中，没有参数的就是默认构造器defaultConstructor
+		// 13.3.7 spring遍历一个构造方法，如果是能用的，就记录一下个数nonSyntheticConstructors++，
+		// 检查没有问题就加到备选candidates.add(candidate)中
+		// 13.3.8 就这样遍历完后，spring开始判断
+		// (1) rawCandidates就是通过getDeclaredConstructors()得到的所有，只有一个构造方法，而且参数不是0，那么就是它了
+		// (2) 如果nonSyntheticConstructors == 2， primaryConstructor != null &&
+		// defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)
+		// 就是找到两个构造方法，但是必须要有一个设置为primaryConstructor，如果不是，那就是默认的
+		// ------好像只有在xml或者bd里面才能设置primaryConstructor-------
+		// 如果两个构造方法，必须提供一个默认的构造函数，而且必须设置为primaryConstructor
+		// (3) 如果只有一个，而且primaryConstructor不为null，返回primaryConstructor
+		// (4) 上述都不满足，返回candidateConstructors[0] 应该就是默认的
+		// (5) 都不满足，就算最后的，就是返回null
+		// 13.4 如果发现传入的是构造方法只有一个，又是无参的，
+		// 那就直接bw.setBeanInstance(instantiate(beanName, mbd, uniqueCandidate, EMPTY_ARGS))
+		// 13.5 加下来spring就做得有点特别的麻烦了，过于复杂了，先是对构造方法进行排序
+		// 排序的方法：
+		// 1. 访问权限排在最前面
+ 		// 2. 参数多的排在前面
+		// 13.6 然后定义差异变量minTypeDiffWeight，遍历所有构造方法，然后可能是通过编辑距离，计算几个构造方法的差异值，得到最小的，
+		// 这里通过排序的顺序，做了一个加速的判断过程，因为如果第一个开始不满足条件，排序后面的也肯定不满足
+		// 如果出现多个最小的，都先放入causes里面，如果最后遍历完后，最小的还存在两个，再抛出异常
+		// 13.7 再调用有参构造方法instantiate(beanName, mbd, constructorToUse, argsToUse)
+		// 14 实例化之后还要判断是不是允许循环依赖allowCircularReferences
+		// 15 addSingletonFactory比较重要，放入一个singletonFactories和registeredSingletons
+		// 16 接下来开始populateBean，主要借助两个后置处理器，common和autowired
+		// CommonAnnotationBeanPostProcessor处理@Resource、@PostConstruct和@PreDestory
+		// AutowiredAnnotationBeanPostProcessor
+		// 17 看有没有实现InstantiationAwareBeanPostProcessor接口，有实现就直接返回了
+		// 18 看看有没有设置属性值，通过bd设置
+		// 19 看看注入模型resolvedAutowireMode，这里又说明了默认的方法是AUTOWIRE_NO
+		// 20 调用上述后置处理器的postProcessProperties，就是开始处理属性值了，这里在5.2.2版本中还存在postProcessPropertyValues，
+		// 但是该方法已经备注弃用
+		// CommonAnnotationBeanPostProcessor主要是找@Resource的依赖的
+		// AutowiredAnnotationBeanPostProcessor的这个方法就是处理属性注入的，采用inject方法注入，就是metadata.inject方法
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();
 	}

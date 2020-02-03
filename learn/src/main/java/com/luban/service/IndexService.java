@@ -1,18 +1,15 @@
 package com.luban.service;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class IndexService {
-//
-//	String name;
-//
-//	public String getName() {
-//		return name;
-//	}
-//
-//	@Required
-//	public void setName(String name) {
-//		this.name = name;
-//	}
+
+	public IndexService() {
+		System.out.println();
+	}
+
+	public void setA(OrderService orderService) {
+		System.out.println("setA(OrderService orderService)");
+	}
 }

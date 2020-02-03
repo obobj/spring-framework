@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'org.springframework'
+version '5.2.3.BUILD-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.springframework/spring-aop
+    compile group: 'org.springframework', name: 'spring-aop', version: '5.2.1.RELEASE'
+
+    // https://mvnrepository.com/artifact/org.aspectj/aspectjrt
+    compile group: 'org.aspectj', name: 'aspectjrt', version: '1.9.5'
+
+    // https://mvnrepository.com/artifact/org.aspectj/aspectjweaver
+    runtime group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.5'
+
+    // https://mvnrepository.com/artifact/org.mybatis/mybatis
+    compile group: 'org.mybatis', name: 'mybatis', version: '3.5.3'
+
+    compile project(':spring-context')
+//    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
