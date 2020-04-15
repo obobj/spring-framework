@@ -8,6 +8,10 @@ public class Test{
 	public static void main(String[] args) {
 		AnnotationConfigApplicationContext ac =
 				new AnnotationConfigApplicationContext(AppConfig.class);
+//		ac.getBean(TestDaoAOP.class).test();
+//
+//		ac.getBean(AutoAOP.class).test();
+
 //		ac.register(AppConfig.class);
 		// 如果这个类又加了@Compoent，将会执行两次
 //		ac.addBeanFactoryPostProcessor(new MyBeanDefinitionRegistryPostProcessor());

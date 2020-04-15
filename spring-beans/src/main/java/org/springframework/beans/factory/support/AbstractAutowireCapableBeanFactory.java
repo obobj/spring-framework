@@ -466,11 +466,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 一般不会使用
 			// 假设后置处理器能够返回一个真实的bean，就直接返回了
 			// 这个后置处理器有一个典型的应用，在spring里面，就是在aop的时候，
-			// 这个后置处理器将会判断一定（这里是一定）不需要增强的类，将其放入一个map中
+			// 这个后置处理器将会判断一定（这里是一定）不需要增强的类，将其放入一个map中就是advisedBeans中
 			// 怎么判断是一定的呢，就是判断如果类上有@Aspect、@PointCut等注解，那这个类肯定不需要增强
 			// 因为在bean初始化之后，就是BeanPostProcessor后置处理器的
 			// postProcessAfterInitialization中，本来是这里开始完成代理的，但是有了这个map，过滤了一些类
 			// 初步认为是可以提高速度
+			// 因为是这样的，这里的逻辑是如果但凡在postProcessBeforeInstantiation中返回了任意非null对象
+			// postProcessAfterInitialization就会运行，返回直接返回了，不再后续任何代码了
+			// 那个map也
 			// 实现InstantiationAwareBeanPostProcessor直接在
 			// postProcessBeforeInstantiation返回一个bean
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
@@ -543,6 +546,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			if (!mbd.postProcessed) {
 				try {
 					// 这是第三次后置处理器调用
+					// 缓存bean的注入信息的后置处理器，仅仅是缓存或者干脆叫做查找更加合适，没有完成注入，注入是另外一个后置处理器的作用
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -563,6 +567,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						"' to allow for resolving potential circular references");
 			}
 			// 这是第四次后置处理器
+			// 这里也可以完成代理
+			// 这才是循环依赖的关键
+			// 这里处理的这个singletonFactories
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -1191,6 +1198,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// 第二次执行后置处理器
+		// 就是如果你的构造方法有多个，无参、有参都有，那就是没有
+		// 但是如果你在构造器上添加@Autowire就不一样了
 		// TODO determineConstructorsFromBeanPostProcessors到底是干啥的
 		// 这里调用了后置处理器返回哪些构造方法，再判断用哪个构造方法
 		// 这里会循环所有的后置处理器SmartInstantiationAwareBeanPostProcessor
@@ -1199,6 +1208,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// 如果返回null，就调用默认
 		// 1 提供了有参又提供了无参，spring 就会认为是无参
 		// 2 提供了1个构造
+		// 总结一下：
+		// 1. 首先全部拿出来，看一下加上@Autowired没有
+		// 先都放到临时变量中，然后再看看临时变量是不是等于null
+		// 如果临时变量不等于null，那么就变成数组返回出来，但是如果多于1个，就是超过1个构造方法加上了@Autowired，报错
+		// 2. 如果一个都没有@Autowired，那么如果有多个构造方法，那么spring懵逼了，就认为都没有，返回null
+		// 如果只有一个，而且不是默认的，那就是它了，如果是默认的就是没有参数的，那就返回null，后面的实例化的时候看到是null，
+		// 就知道是调用默认的了
+		// 如果没有加，判断构造方法有参数没有，如果没有，就赋值给defaultConstructor
 		// Candidate constructors for autowiring?
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		// mbd.getResolvedAutowireMode()自动装配模型
@@ -1388,6 +1405,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// 第五次调用后置处理器
 		// 如果你实例化了，spring就不设置属性了，就直接返回了
+		// 这个后置处理器主要是用于提前阻断
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
@@ -1395,8 +1413,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
-					if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
-						return;
+						if (!ibp.postProcessAfterInstantiation(bw.getWrappedInstance(), beanName)) {
+							return;
 					}
 				}
 			}
@@ -1803,6 +1821,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
 			// 这里就是第七次调用后置处理器
+			// 注意哦，这里的初始化是啥意思哦，这里的bean早就实例化，然后都属性都设置完了
+			// 这里其实叫BeforeInitialization有些差异，很奇怪
+			// 可能理解的话就是理解为spring执行初始化方法之前
+			// 			// 1.@PostConstruct
+			//			// 2.实现initialingBean
 			// -----这里就是回调BeanPostProcessor的BeforeInitialization方法------
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}

@@ -936,7 +936,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// TODO
 		// aspect静态织入的过程
 		// spring的aop不管是jdk还是cglib都是动态织入
-		// 一个是编译的时候，一个是运行的时候改变
+		// 一个是编译的时候是静态织入，处于操作字节码技术，一个是运行的时候改变
 		// Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
 		String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
 		for (String weaverAwareName : weaverAwareNames) {

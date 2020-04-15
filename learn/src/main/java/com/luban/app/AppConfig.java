@@ -23,7 +23,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 /**
  * 这个注解利用了Import技术，完成了一个后置处理器的注册
  */
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class AppConfig {
 
 	@Bean
